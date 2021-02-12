@@ -109,7 +109,7 @@ class Graph:
         """
         tracker = {}
         for source, target in self.edges:
-            if source and target not in tracker:
+            if source not in tracker and target not in tracker:
                 tracker[source] = 1
                 tracker[target] = 1
             elif source in tracker and target not in tracker:
@@ -117,6 +117,9 @@ class Graph:
                 tracker[target] = 1
             elif source not in tracker and target in tracker:
                 tracker[source] = 1
+                tracker[target] += 1
+            else:
+                tracker[source] += 1
                 tracker[target] += 1
         max_count = max(tracker.values())
         max_nodes = {node : count for node, count in tracker.items() if count == max_count}
@@ -448,4 +451,5 @@ if __name__ == "__main__":
     # If you have already built & written out your graph, you could read in your nodes & edges files
     # to perform testing on your graph.
     graph = Graph(with_edges_file="edges.csv", with_nodes_file="nodes.csv")
-    graph.duplicated_edges()
+    # graph.duplicated_edges()
+    # print(graph.max_degree_nodes())
