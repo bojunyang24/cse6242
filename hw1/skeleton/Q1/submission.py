@@ -34,7 +34,7 @@ import csv
 # but will grade the resulting graph data in your Argo-Lite graph snapshot.
 #
 #############################################################################################################################
-DEBUG = False
+DEBUG = True
 
 class Graph:
 
@@ -72,7 +72,7 @@ class Graph:
         Where 'source' is the id of the source node and 'target' is the id of the target node
         e.g., for two nodes with ids 'a' and 'b' respectively, add the tuple ('a', 'b') to self.edges
         """
-        if (source, target) and (target, source) not in self.edges:
+        if (source, target) not in self.edges and (target, source) not in self.edges:
             self.edges.append((source, target))
 
 
@@ -89,6 +89,15 @@ class Graph:
         """
         return len(self.edges)
 
+    def duplicated_edges(self)->None:
+        count=0
+        for i in range(len(self.edges)):
+            for j in range(i+1, len(self.edges)):
+                if (self.edges[i][0] == self.edges[j][0] and self.edges[i][1] == self.edges[j][1]) or (self.edges[i][0] == self.edges[j][1] and self.edges[i][1] == self.edges[j][0]):
+                    count+=1
+                    print(str(i) + ": " + str(self.edges[i]))
+                    print(str(j) + ": " + str(self.edges[j]))
+        print(count)
 
     def max_degree_nodes(self)->dict:
         """
@@ -425,9 +434,10 @@ if __name__ == "__main__":
     # tmdb_api_utils = TMDBAPIUtils(api_key='f6937edee4aa66fa32cf68fdec279d19')
     # tmdb_api_utils.get_movie_cast('464052')
     # tmdb_api_utils.get_movie_credits_for_person('2975')
-    print("Starting to build network")
-    build_network(root_id='2975', root_name='Laurence Fishburne')
-    print("Finished building network")
+
+    # print("Starting to build network")
+    # build_network(root_id='2975', root_name='Laurence Fishburne')
+    # print("Finished building network")
 
     # call functions or place code here to build graph (graph building code not graded)
     # Suggestion: code should contain steps outlined above in BUILD CO-ACTOR NETWORK
@@ -437,4 +447,5 @@ if __name__ == "__main__":
 
     # If you have already built & written out your graph, you could read in your nodes & edges files
     # to perform testing on your graph.
-    # graph = Graph(with_edges_file="edges.csv", with_nodes_file="nodes.csv")
+    graph = Graph(with_edges_file="edges.csv", with_nodes_file="nodes.csv")
+    graph.duplicated_edges()
