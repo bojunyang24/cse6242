@@ -61,20 +61,20 @@ class HW2_sql():
 
     # GTusername [0 points]
     def GTusername(self):
-        gt_username = "gburdell3"
+        gt_username = "byang301"
         return gt_username
     
     # Part a.i Create Tables [2 points]
     def part_ai_1(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_ai_1_sql = ""
+        part_ai_1_sql = "CREATE TABLE movies(id integer, title text, score real);"
         ######################################################################
         
         return self.execute_query(connection, part_ai_1_sql)
 
     def part_ai_2(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_ai_2_sql = ""
+        part_ai_2_sql = "CREATE TABLE movie_cast(movie_id integer, cast_id integer, cast_name text, birthday text, popularity real);"
         ######################################################################
         
         return self.execute_query(connection, part_ai_2_sql)
@@ -82,7 +82,10 @@ class HW2_sql():
     # Part a.ii Import Data [2 points]
     def part_aii_1(self,connection,path):
         ############### CREATE IMPORT CODE BELOW ############################
-
+        with open(path, 'r') as f:
+            reader = csv.reader(f)
+            for field in reader:
+                connection.execute("INSERT INTO movies(id, title, score) VALUES(?, ?, ?)", (field[0], field[1], field[2]))
        ######################################################################
         
         sql = "SELECT COUNT(id) FROM movies;"
@@ -91,7 +94,10 @@ class HW2_sql():
     
     def part_aii_2(self,connection, path):
         ############### CREATE IMPORT CODE BELOW ############################
-        
+        with open(path, 'r') as f:
+            reader = csv.reader(f)
+            for field in reader:
+                connection.execute("INSERT INTO movie_cast(movie_id, cast_id, cast_name, birthday, popularity) VALUES(?, ?, ?, ?, ?)", (field[0], field[1], field[2], field[3], field[4]))
         ######################################################################
         
         sql = "SELECT COUNT(cast_id) FROM movie_cast;"
@@ -101,13 +107,13 @@ class HW2_sql():
     # Part a.iii Vertical Database Partitioning [5 points]
     def part_aiii(self,connection):
         ############### EDIT CREATE TABLE SQL STATEMENT ###################################
-        part_aiii_sql = ""
+        part_aiii_sql = "CREATE TABLE cast_bio(cast_id integer, cast_name text, birthday date, popularity real);"
         ######################################################################
         
         self.execute_query(connection, part_aiii_sql)
         
         ############### CREATE IMPORT CODE BELOW ############################
-        part_aiii_insert_sql = ""
+        part_aiii_insert_sql = "INSERT INTO cast_bio(cast_id, cast_name, birthday, popularity) SELECT DISTINCT (cast_id) cast_id, cast_name, birthday, popularity from movie_cast"
         ######################################################################
         
         self.execute_query(connection, part_aiii_insert_sql)
@@ -120,26 +126,26 @@ class HW2_sql():
     # Part b Create Indexes [1 points]
     def part_b_1(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_b_1_sql = ""
+        part_b_1_sql = "CREATE INDEX movie_index ON movies (id)"
         ######################################################################
         return self.execute_query(connection, part_b_1_sql)
     
     def part_b_2(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_b_2_sql = ""
+        part_b_2_sql = "CREATE INDEX cast_index ON movie_cast (cast_id)"
         ######################################################################
         return self.execute_query(connection, part_b_2_sql)
     
     def part_b_3(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_b_3_sql = ""
+        part_b_3_sql = "CREATE INDEX cast_bio_index ON cast_bio (cast_id)"
         ######################################################################
         return self.execute_query(connection, part_b_3_sql)
     
     # Part c Calculate a Proportion [3 points]
     def part_c(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_c_sql = ""
+        part_c_sql = "SELECT printf(\"%.2f\", CAST(SUM(CASE WHEN score > 50 AND title LIKE '%war%' THEN 1 ELSE 0 END) AS float) * CAST(100 AS float) / CAST(count(*) AS float)) from movies"
         ######################################################################
         cursor = connection.execute(part_c_sql)
         return cursor.fetchall()[0][0]
@@ -147,7 +153,17 @@ class HW2_sql():
     # Part d Find the Most Prolific Actors [4 points]
     def part_d(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_d_sql = ""
+        part_d_sql = """
+        WITH temp AS (SELECT cast_name, count(cast_id) as c
+        FROM movie_cast
+        WHERE popularity > 10
+        GROUP BY cast_id)
+
+        SELECT cast_name, c
+        FROM temp
+        ORDER BY c DESC, cast_name ASC
+        LIMIT 5
+        """
         ######################################################################
         cursor = connection.execute(part_d_sql)
         return cursor.fetchall()
@@ -155,7 +171,29 @@ class HW2_sql():
     # Part e Find the Highest Scoring Movies With the Least Amount of Cast [4 points]
     def part_e(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_e_sql = ""
+        # WITH temp AS (SELECT movie_id, count(cast_id) as c
+        # FROM movie_cast
+        # GROUP BY movie_id)
+
+        # SELECT title, c, printf(\"%.2f\", score)
+        # FROM temp
+        # INNER JOIN movies
+        # ON temp.movie_id = movies.id
+        # ORDER BY score DESC, c ASC
+        # LIMIT 5
+        part_e_sql = """
+        SELECT title as movie_title, printf(\"%.2f\", score) as movie_score, cast_count
+        FROM (
+            SELECT movie_id, count(*) as cast_count
+            FROM movie_cast
+            GROUP BY (movie_id)
+            ORDER BY cast_count ASC
+        ) as movie_cast_size
+        INNER JOIN movies
+        ON movie_cast_size.movie_id = movies.id
+        ORDER BY score DESC, cast_count ASC
+        LIMIT 5
+        """
         ######################################################################
         cursor = connection.execute(part_e_sql)
         return cursor.fetchall()
@@ -163,7 +201,32 @@ class HW2_sql():
     # Part f Get High Scoring Actors [4 points]
     def part_f(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_f_sql = ""
+        # WITH temp AS (
+        #     SELECT cast_id, cast_name, avg(score) as avg_score, count(cast_id) as cast_count
+        #     FROM movie_cast
+        #     INNER JOIN movies
+        #     ON movie_cast.movie_id = movies.id
+        #     GROUP BY cast_id
+        #     HAVING avg(score) >= 25 AND cast_count > 2
+        # )
+        # SELECT cast_id, cast_name, printf(\"%.2f\", avg_score)
+        # FROM temp
+        # ORDER BY avg_score DESC, cast_name ASC
+        # LIMIT 10
+        part_f_sql = """
+        SELECT cast_id, cast_name, printf(\"%.2f\", average_score)
+        FROM (
+            SELECT cast_id, cast_name, avg(score) as average_score, count(*) as num_appearances
+            FROM movie_cast
+            INNER JOIN movies
+            ON movie_cast.movie_id = movies.id
+            WHERE score >= 25
+            GROUP BY cast_id
+            HAVING num_appearances >= 3
+            ORDER BY avg(score) DESC, cast_name ASC
+        )
+        LIMIT 10
+        """
         ######################################################################
         cursor = connection.execute(part_f_sql)
         return cursor.fetchall()
@@ -171,13 +234,60 @@ class HW2_sql():
     # Part g Creating Views [6 points]
     def part_g(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_g_sql = ""
+        part_g_sql = """
+        CREATE VIEW good_collaboration AS
+        SELECT cast_member_id1, cast_member_id2, count(movie_id) as movie_count, printf(\"%.2f\", avg(score)) as average_movie_score
+        FROM (
+            SELECT movie_id, cast_member_id1, cast_member_id2, score
+            FROM (
+                SELECT a.movie_id, a.cast_id as cast_member_id1, b.cast_id as cast_member_id2
+                FROM movie_cast a, movie_cast b
+                WHERE a.movie_id = b.movie_id AND a.cast_id < b.cast_id
+                ORDER BY a.movie_id DESC, a.cast_id DESC
+            ) co_actors_and_movies
+            INNER JOIN movies
+            ON co_actors_and_movies.movie_id = movies.id
+        ) co_actors_with_movie_score
+        GROUP BY cast_member_id1, cast_member_id2
+        HAVING avg(score) >= 40 AND count(movie_id) >= 3;
+        """
         ######################################################################
         return self.execute_query(connection, part_g_sql)
     
     def part_gi(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_g_i_sql = ""
+        # SELECT cast_collab_score.cast_id, cast_name, printf(\"%.2f\", avg(average_movie_score)) as collaboration_score
+        # FROM (
+        #     SELECT cast_member_id1 as cast_id, average_movie_score FROM good_collaboration
+        #     UNION ALL
+        #     SELECT cast_member_id2 as cast_id, average_movie_score FROM good_collaboration
+        # ) as cast_collab_score
+        # INNER JOIN (
+        #     SELECT cast_id, cast_name
+        #     FROM movie_cast
+        #     GROUP BY cast_id
+        # ) as cast_details
+        # ON cast_collab_score.cast_id = cast_details.cast_id
+        # GROUP BY cast_collab_score.cast_id
+        # ORDER BY avg(average_movie_score) DESC, cast_name ASC
+        # LIMIT 5
+        part_g_i_sql = """
+        SELECT cast_collab_score.cast_id, cast_name, printf(\"%.2f\", avg(average_movie_score)) as collaboration_score
+        FROM (
+            SELECT cast_member_id1 as cast_id, average_movie_score FROM good_collaboration
+            UNION ALL
+            SELECT cast_member_id2 as cast_id, average_movie_score FROM good_collaboration
+        ) as cast_collab_score
+        INNER JOIN (
+            SELECT cast_id, cast_name
+            FROM movie_cast
+            GROUP BY cast_id
+        ) as cast_details
+        ON cast_collab_score.cast_id = cast_details.cast_id
+        GROUP BY cast_collab_score.cast_id
+        ORDER BY avg(average_movie_score) DESC, cast_name ASC
+        LIMIT 5
+        """
         ######################################################################
         cursor = connection.execute(part_g_i_sql)
         return cursor.fetchall()
@@ -185,11 +295,14 @@ class HW2_sql():
     # Part h FTS [4 points]
     def part_h(self,connection,path):
         ############### EDIT SQL STATEMENT ###################################
-        part_h_sql = ""
+        part_h_sql = "CREATE VIRTUAL TABLE movie_overview USING fts3(id INTEGER, overview TEXT)"
         ######################################################################
         connection.execute(part_h_sql)
         ############### CREATE IMPORT CODE BELOW ############################
-        
+        with open(path, 'r', encoding='utf-8-sig') as f:
+            reader = csv.reader(f)
+            for field in reader:
+                connection.execute("INSERT INTO movie_overview(id, overview) VALUES(?, ?)", (field[0], field[1]))
         ######################################################################
         sql = "SELECT COUNT(id) FROM movie_overview;"
         cursor = connection.execute(sql)
@@ -197,14 +310,22 @@ class HW2_sql():
         
     def part_hi(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_hi_sql = ""
+        part_hi_sql = """
+        SELECT count(*)
+        FROM movie_overview
+        WHERE overview MATCH 'fight'
+        """
         ######################################################################
         cursor = connection.execute(part_hi_sql)
         return cursor.fetchall()[0][0]
     
     def part_hii(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        part_hii_sql = ""
+        part_hii_sql = """
+        SELECT count(*)
+        FROM movie_overview
+        WHERE overview MATCH '"space " NEAR/5 "program"'
+        """
         ######################################################################
         cursor = connection.execute(part_hii_sql)
         return cursor.fetchall()[0][0]
