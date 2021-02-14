@@ -281,7 +281,6 @@ class HW2_sql():
         INNER JOIN (
             SELECT cast_id, cast_name
             FROM movie_cast
-            GROUP BY cast_id
         ) as cast_details
         ON cast_collab_score.cast_id = cast_details.cast_id
         GROUP BY cast_collab_score.cast_id
