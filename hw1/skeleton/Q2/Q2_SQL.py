@@ -256,21 +256,6 @@ class HW2_sql():
     
     def part_gi(self,connection):
         ############### EDIT SQL STATEMENT ###################################
-        # SELECT cast_collab_score.cast_id, cast_name, printf(\"%.2f\", avg(average_movie_score)) as collaboration_score
-        # FROM (
-        #     SELECT cast_member_id1 as cast_id, average_movie_score FROM good_collaboration
-        #     UNION ALL
-        #     SELECT cast_member_id2 as cast_id, average_movie_score FROM good_collaboration
-        # ) as cast_collab_score
-        # INNER JOIN (
-        #     SELECT cast_id, cast_name
-        #     FROM movie_cast
-        #     GROUP BY cast_id
-        # ) as cast_details
-        # ON cast_collab_score.cast_id = cast_details.cast_id
-        # GROUP BY cast_collab_score.cast_id
-        # ORDER BY avg(average_movie_score) DESC, cast_name ASC
-        # LIMIT 5
         part_g_i_sql = """
         SELECT cast_collab_score.cast_id, cast_name, printf(\"%.2f\", avg(average_movie_score)) as collaboration_score
         FROM (
