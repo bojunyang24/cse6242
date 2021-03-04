@@ -18,5 +18,6 @@ pointer-events: none;
 }
 
 body {
+    width: 900px;
     text-align: right;
 }
