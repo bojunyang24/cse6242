@@ -4,15 +4,19 @@ path.link {
     stroke-width: 1.5px;
   }
   
-  circle {
-    fill: #ccc;
-    stroke: #fff;
-    stroke: black;
-    stroke-width: 1.5px;
-  }
-  
-  text {
-    fill: #000;
-    font: 10px sans-serif;
-    pointer-events: none;
-  }
+circle {
+fill: #ccc;
+stroke: #fff;
+stroke: black;
+stroke-width: 1.5px;
+}
+
+text {
+fill: #000;
+font: 10px sans-serif;
+pointer-events: none;
+}
+
+body {
+    text-align: right;
+}
