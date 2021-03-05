@@ -77,3 +77,7 @@ path {
 .ranktext {
     font-size: 70%;
 }
+
+.svg-container {
+    page-break-after:always;
+}
