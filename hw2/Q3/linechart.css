@@ -1,0 +1,79 @@
+.line {
+    fill: none;
+    stroke: #ffab00;
+    stroke-width: 3;
+}
+  
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+
+/* Style the dots by assigning a fill and stroke */
+.dot {
+    fill: #ffab00;
+    stroke: #fff;
+}
+  
+.focus circle {
+    fill: none;
+    stroke: steelblue;
+}
+
+body {
+    width: 900px;
+    text-align: right;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+.axis line{
+    stroke: #706f6f;
+    stroke-width: 0.5;
+    shape-rendering: crispEdges;
+}
+    
+path {
+    stroke-width: 2;
+}
+
+/* axis contour */
+.axis path {
+    stroke: #706f6f;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+/* axis text */
+.axis text {
+    fill: #2b2929;
+    font-size: 120%;
+}
+
+/* axis label */
+.axis .ylabel {
+    font-size: 140%;
+    font-weight: 1000;
+}
+
+.axis .xlabel {
+    font-size: 140%;
+    font-weight: 1000;
+}
+
+.serie_label {
+    fill: #2b2929;
+}
+
+.chart-title {
+    font-size: 130%;
+    font-weight: bold;
+}
+
+.circle-label {
+    font-size: 60%;
+    fill: white;
+}
+
+.ranktext {
+    font-size: 70%;
+}
