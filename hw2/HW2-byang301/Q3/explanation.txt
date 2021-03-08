@@ -1,0 +1,1 @@
+We want to use nonlinear scales such as the square root scale or log scale when our data changes exponentially. Exponential growth in a linear scale is shown as linear growth in a log scale. It could also be useful when plotting data that have very different scales.

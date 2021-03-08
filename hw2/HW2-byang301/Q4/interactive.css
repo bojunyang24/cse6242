@@ -1,0 +1,33 @@
+.line-chart {
+    stroke-width: 2;
+}
+
+.chart-title {
+    font-weight: bold;
+    font-size: 120%;
+}
+
+.gtusername {
+    font-size: 110%;
+}
+
+.axis {
+    font-size: 90%;
+}
+
+.xlabel {
+    font-size: 120%;
+}
+
+.ylabel {
+    font-size: 120%;
+}
+
+.page-break {
+    page-break-after:always;
+}
+
+.verticalgridlines {
+    stroke: lightgrey;
+    stroke-opacity: 0.75;
+}
