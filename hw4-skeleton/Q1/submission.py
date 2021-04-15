@@ -15,10 +15,10 @@ over dataset multiple times and update the PageRank value based on equation ment
 """
 
 def author():                                                                                             
-        return "gburdell3" # replace gburdell3 with your Georgia Tech username.                                                                                             
+        return "byang301" # replace gburdell3 with your Georgia Tech username.                                                                                             
                                                                                               
 def gtid():                                                                                               
-    return 987654321 # replace with your GT ID number      
+    return 903254309 # replace with your GT ID number      
 
 class PageRank:
     def __init__(self, edge_file):
@@ -42,7 +42,12 @@ class PageRank:
 
         ### Implement your code here
         #############################################
-            pass
+            if source > self.max_node_id or target > self.max_node_id:
+                self.max_node_id = source if source > target else target
+            if source not in self.node_degree:
+                self.node_degree[source] = 1
+            else:
+                self.node_degree[source] += 1
 
         #############################################
 
@@ -73,8 +78,9 @@ class PageRank:
 
         ### Implement your code here
         #############################################
-                pass
+                new_pr_values[target] += damping_factor * pr_values[source] / self.node_degree[source]
 
+            pr_values = np.add((1-damping_factor) * node_weights, new_pr_values)
         #############################################
 
         print ("Completed {0}/{1} iterations. {2} seconds elapsed.".format(it + 1, iterations, time.time() - start_time))
